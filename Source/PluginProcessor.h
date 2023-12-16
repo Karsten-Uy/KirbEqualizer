@@ -90,6 +90,7 @@ private:
         HighCut
     };
 
+<<<<<<< HEAD
     void updatePeakFilter(const ChainSettings& chainSettings);
     
     using Coefficients = Filter::CoefficientsPtr;
@@ -148,6 +149,8 @@ private:
         }
     }
     
+=======
+>>>>>>> parent of ba017cd (Cleaned up low cut filter)
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
