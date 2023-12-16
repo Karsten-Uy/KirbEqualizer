@@ -90,6 +90,64 @@ private:
         HighCut
     };
 
+    void updatePeakFilter(const ChainSettings& chainSettings);
+    
+    using Coefficients = Filter::CoefficientsPtr;
+
+    static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+    template<typename ChainType, typename CoefficientType>
+    void updateCutFilter(
+        ChainType& leftLowCut,
+        const CoefficientType& cutCoefficients,
+        const ChainSettings& chainSettings)
+    {
+        leftLowCut.template setBypassed<0>(true); // initially sets all filters in a cutFilter to not be on
+        leftLowCut.template setBypassed<1>(true);
+        leftLowCut.template setBypassed<2>(true);
+        leftLowCut.template setBypassed<3>(true);
+
+        switch (chainSettings.lowCutSlope)
+        {
+        case Slope_12:
+        {
+            *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<0>(false);
+            break;
+        }
+        case Slope_24:
+        {
+            *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<0>(false);
+            *leftLowCut.template get<1>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<1>(false);
+            break;
+        }
+        case Slope_36:
+        {
+            *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<0>(false);
+            *leftLowCut.template get<1>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<1>(false);
+            *leftLowCut.template get<2>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<2>(false);
+            break;
+        }
+        case Slope_48:
+        {
+            *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<0>(false);
+            *leftLowCut.template get<1>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<1>(false);
+            *leftLowCut.template get<2>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<2>(false);
+            *leftLowCut.template get<3>().coefficients = *cutCoefficients[0];
+            leftLowCut.template setBypassed<3>(false);
+            break;
+        }
+        }
+    }
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
