@@ -29,7 +29,7 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 //==============================================================================
 /**
 */
-class SimpleEQAudioProcessor  : public juce::AudioProcessor
+class SimpleEQAudioProcessor : public juce::AudioProcessor
 {
 public:
     //==============================================================================
@@ -37,14 +37,14 @@ public:
     ~SimpleEQAudioProcessor() override;
 
     //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
+#ifndef JucePlugin_PreferredChannelConfigurations
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+#endif
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -61,17 +61,17 @@ public:
     //==============================================================================
     int getNumPrograms() override;
     int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const juce::String getProgramName (int index) override;
-    void changeProgramName (int index, const juce::String& newName) override;
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
 
     //==============================================================================
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
 
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
-    juce::AudioProcessorValueTreeState apvts {*this,nullptr,"Parameters",createParameterLayout()};
+    juce::AudioProcessorValueTreeState apvts{ *this,nullptr,"Parameters",createParameterLayout() };
 
 private:
 
@@ -90,9 +90,8 @@ private:
         HighCut
     };
 
-<<<<<<< HEAD
     void updatePeakFilter(const ChainSettings& chainSettings);
-    
+
     using Coefficients = Filter::CoefficientsPtr;
 
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
@@ -134,7 +133,7 @@ private:
             leftLowCut.template setBypassed<2>(false);
             break;
         }
-        case Slope_48:
+        case Slope_48: 
         {
             *leftLowCut.template get<0>().coefficients = *cutCoefficients[0];
             leftLowCut.template setBypassed<0>(false);
@@ -148,9 +147,7 @@ private:
         }
         }
     }
-    
-=======
->>>>>>> parent of ba017cd (Cleaned up low cut filter)
+
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleEQAudioProcessor)
 };
