@@ -100,14 +100,14 @@ private:
     void updateCutFilter(
         ChainType& leftLowCut,
         const CoefficientType& cutCoefficients,
-        const ChainSettings& chainSettings)
+        const Slope& lowCutSlope)
     {
         leftLowCut.template setBypassed<0>(true); // initially sets all filters in a cutFilter to not be on
         leftLowCut.template setBypassed<1>(true);
         leftLowCut.template setBypassed<2>(true);
         leftLowCut.template setBypassed<3>(true);
 
-        switch (chainSettings.lowCutSlope)
+        switch (lowCutSlope)
         {
         case Slope_12:
         {
