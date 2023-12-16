@@ -58,6 +58,15 @@ public:
     juce::AudioProcessorValueTreeState apvts {*this,nullptr,"Parameters",createParameterLayout()};
 
 private:
+
+    using Filter = juce::dsp::IIR::Filter<float>;
+
+    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>; // each filter can be instantiated with a specified x*12 db slope, so you need 4 for the high and low cuts
+
+    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+
+    MonoChain leftChain, rightChain;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
