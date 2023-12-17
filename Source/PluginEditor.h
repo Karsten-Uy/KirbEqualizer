@@ -13,6 +13,20 @@
 
 //==============================================================================
 
+struct Placeholder : juce::Component
+{
+    Placeholder();
+
+    juce::Colour customColour;
+
+    void paint(juce::Graphics& g) override
+    {
+        g.fillAll(customColour);
+    }
+
+};
+
+
 /**
 */
 class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor,
@@ -49,12 +63,33 @@ private:
     juce::Slider outGainSlider{ "outGainSlider" };
     juce::Label outGainLabel{ "Output Gain" };
 
+
+
+    juce::Slider lowSlopeSelect{ "lowSlopeSelect" };
+    juce::Label lowSlopeLabel{ "Low Cut Slope" };
+
+    juce::Slider highSlopeSelect{ "highSlopeSelect" };
+    juce::Label highSlopeLabel{ "High Cut Slope" };
+
+
+
     SimpleEQAudioProcessor& audioProcessor;
 
     using APVTS = juce::AudioProcessorValueTreeState;
-    using Attachment = APVTS::SliderAttachment;
+    using sliderAttachment = APVTS::SliderAttachment;
+    using comboBoxAttachment = APVTS::ComboBoxAttachment;
 
-    Attachment lowFreqSliderAttachment; // connects it to the parameter in the process block
+    sliderAttachment // connects it to the parameter in the process block
+        lowFreqSliderAttachment,
+        peakFreqSilderAttachment,
+        highFreqSliderAttachment,
+        peakQSliderAttachemnt,
+        peakGainSliderAttachment,
+        outGainSliderAttachment,
+        lowSlopeSliderAttachment,
+        highSlopeSliderAttachment;
+
+    Placeholder titleStrip, analyzer, gainControl, lowControl, peakControl, highControl;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleEQAudioProcessorEditor)
 };
