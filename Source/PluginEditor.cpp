@@ -15,7 +15,14 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+
+    lowFreqDial.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+    lowFreqDial.setTextBoxStyle(juce::Slider::TextBoxBelow,false,50,20);
+
+    addAndMakeVisible(lowFreqDial);
+
+
+    setSize (600, 600);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
@@ -26,15 +33,21 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (juce::Colours::black);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    
+
 }
 
 void SimpleEQAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    auto r = getLocalBounds();
+
+    juce::Rectangle<int> area = getLocalBounds();
+
+    juce::Rectangle<int> lowFreqDialArea = area.removeFromTop(area.getHeight() / 2);
+
+    lowFreqDial.setBounds(lowFreqDialArea);
 }
+
+

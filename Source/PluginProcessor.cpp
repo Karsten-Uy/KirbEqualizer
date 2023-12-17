@@ -95,6 +95,8 @@ void SimpleEQAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
 {
     juce::dsp::ProcessSpec spec; // the block to be passed into the filters
 
+    previousGain = pow(10,*apvts.getRawParameterValue("Output Gain")/20);
+
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
@@ -150,8 +152,23 @@ void SimpleEQAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     // This is here to avoid people getting screaming feedback
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i) {
         buffer.clear(i, 0, buffer.getNumSamples());
+    }
+
+
+    float currentGain = pow(10, *apvts.getRawParameterValue("Output Gain") / 20);
+
+    if (currentGain == previousGain) {
+        buffer.applyGain(currentGain);
+    }
+    else {
+        buffer.applyGainRamp(0, buffer.getNumSamples(), previousGain, currentGain);
+        previousGain = currentGain;
+    }
+
+    
+        
 
     updateFilters();
    
@@ -206,6 +223,7 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     settings.peakQuality = apvts.getRawParameterValue("Peak Quality")->load();
     settings.lowCutSlope = static_cast<Slope>(apvts.getRawParameterValue("LowCut Slope")->load()); // need cast to satisfy compiler
     settings.highCutSlope = static_cast<Slope>(apvts.getRawParameterValue("HighCut Slope")->load());
+    settings.outputGainInDB = apvts.getRawParameterValue("Output Gain")->load();
 
     return settings;
 }
@@ -229,6 +247,7 @@ void SimpleEQAudioProcessor::updateLowCutFilters(const ChainSettings& chainSetti
     updateCutFilter(rightLowCut, lowCutCoefficients, static_cast<Slope>(chainSettings.lowCutSlope));
 
 }
+
 void SimpleEQAudioProcessor::updateHighCutFilters(const ChainSettings& chainSettings)
 {
     auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
@@ -243,6 +262,7 @@ void SimpleEQAudioProcessor::updateHighCutFilters(const ChainSettings& chainSett
     updateCutFilter(righthighCut, highCutCoefficients, static_cast<Slope>(chainSettings.highCutSlope));
 
 }
+
 
 void SimpleEQAudioProcessor::updateFilters()
 {
@@ -330,6 +350,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 
     layout.add(std::make_unique<juce::AudioParameterChoice>("LowCut Slope", "LowCut Slope", stringArray, 0));
     layout.add(std::make_unique<juce::AudioParameterChoice>("HighCut Slope", "HighCut Slope", stringArray, 0));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Output Gain",
+        "Output Gain",
+        juce::NormalisableRange<float>(
+            -24.f,
+            24.f,
+            0.5f,
+            1.f),
+        0.0f));
 
     return layout;
 }
