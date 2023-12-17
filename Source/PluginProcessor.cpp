@@ -166,9 +166,7 @@ void SimpleEQAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         buffer.applyGainRamp(0, buffer.getNumSamples(), previousGain, currentGain);
         previousGain = currentGain;
     }
-
-    
-        
+              
 
     updateFilters();
    
@@ -183,7 +181,6 @@ void SimpleEQAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     leftChain.process(leftContext); // processes the channels
     rightChain.process(rightContext);
 
-
 }
 
 //==============================================================================
@@ -194,7 +191,7 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-    // return new SimpleEQAudioProcessorEditor (*this);
+    return new SimpleEQAudioProcessorEditor (*this);
     return new juce::GenericAudioProcessorEditor(*this);
 }
 
@@ -260,9 +257,7 @@ void SimpleEQAudioProcessor::updateHighCutFilters(const ChainSettings& chainSett
 
     auto& righthighCut = rightChain.get<ChainPositions::HighCut>();
     updateCutFilter(righthighCut, highCutCoefficients, static_cast<Slope>(chainSettings.highCutSlope));
-
 }
-
 
 void SimpleEQAudioProcessor::updateFilters()
 {
@@ -284,7 +279,6 @@ void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings
     updateCoefficients(leftChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
     updateCoefficients(rightChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
 }
-
 
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout()
 {
@@ -355,10 +349,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
         "Output Gain",
         "Output Gain",
         juce::NormalisableRange<float>(
-            -24.f,
+            -144.f,
             24.f,
-            0.5f,
-            1.f),
+            1.f,
+            4.f),
         0.0f));
 
     return layout;
