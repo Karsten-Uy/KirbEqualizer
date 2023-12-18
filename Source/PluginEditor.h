@@ -48,6 +48,11 @@ struct GainControls : juce::Component
     void paint(juce::Graphics& g) override;
 };
 
+struct Analyzer : juce::Component
+{
+    void paint(juce::Graphics& g) override;
+};
+
 struct BigDialLAF : juce::LookAndFeel_V4
 {
     void drawRotarySlider(juce::Graphics&, int x, int y, int width, int height,
@@ -116,6 +121,10 @@ private:
     using sliderAttachment = APVTS::SliderAttachment;
     using comboBoxAttachment = APVTS::ComboBoxAttachment;
 
+    // For Response Curve
+    MonoChain monoChain;
+
+
     sliderAttachment // connects it to the parameter in the process block
         lowFreqSliderAttachment,
         peakFreqSilderAttachment,
@@ -126,7 +135,7 @@ private:
         lowSlopeSliderAttachment,
         highSlopeSliderAttachment;
 
-    Placeholder titleStrip, analyzer /*gainControl, lowControl, peakControl, highControl */;
+    Placeholder titleStrip /* analyzer, gainControl, lowControl, peakControl, highControl*/ ;
 
     LowCutControls lowControl;
 
@@ -135,6 +144,12 @@ private:
     HighCutControls highControl;
 
     GainControls gainControl;
+
+    Analyzer analyzer;
+
+
+
+
 
     BigDialLAF bigDialLAF;
 
