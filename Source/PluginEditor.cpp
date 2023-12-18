@@ -9,7 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-Placeholder::Placeholder() 
+Placeholder::Placeholder()
 {
     juce::Random r;
     customColour = juce::Colour(r.nextInt(255), r.nextInt(255), r.nextInt(255));
@@ -32,8 +32,8 @@ void LowCutControls::paint(juce::Graphics& g)
 
 
 //==============================================================================
-SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p),
+SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p),
 
     lowFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowFreqDial),
     peakFreqSilderAttachment(audioProcessor.apvts, "Peak Freq", peakFreqDial),
@@ -42,7 +42,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
     peakGainSliderAttachment(audioProcessor.apvts, "Peak Gain", peakGainDial),
     outGainSliderAttachment(audioProcessor.apvts, "Output Gain", outGainSlider),
 
-    lowSlopeSliderAttachment(audioProcessor.apvts,"LowCut Slope" ,lowSlopeSelect),
+    lowSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowSlopeSelect),
     highSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highSlopeSelect)
 {
     setSize(400, 420);
@@ -82,10 +82,10 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 }
 
 //==============================================================================
-void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
+void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (juce::Colours::black);
+    g.fillAll(juce::Colours::black);
 
 }
 
@@ -107,11 +107,11 @@ void SimpleEQAudioProcessorEditor::resized()
     highControl.setBounds(bounds.removeFromLeft(110));
 
 
-    
+
 }
 
 void SimpleEQAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
-    
+
 }
 

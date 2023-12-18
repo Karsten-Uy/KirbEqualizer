@@ -42,18 +42,18 @@ struct LookAndFeel : juce::LookAndFeel_V4
 struct RotarySliderWithLabels : juce::Slider
 {
     RotarySliderWithLabels(
-        juce::RangedAudioParameter& rap, 
+        juce::RangedAudioParameter& rap,
         const juce::String& unitSuffix) :
-            juce::Slider(
-                juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-                juce::Slider::TextEntryBoxPosition::NoTextBox),
+        juce::Slider(
+            juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+            juce::Slider::TextEntryBoxPosition::NoTextBox),
         param(&rap),
         suffix(unitSuffix)
     {
         setLookAndFeel(&lnf);
     }
 
-    ~RotarySliderWithLabels() 
+    ~RotarySliderWithLabels()
     {
         setLookAndFeel(nullptr);
     }
@@ -73,24 +73,24 @@ private:
 
 /**
 */
-class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                      public juce::Slider::Listener
+class SimpleEQAudioProcessorEditor : public juce::AudioProcessorEditor,
+    public juce::Slider::Listener
 {
 public:
-    SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor&);
+    SimpleEQAudioProcessorEditor(SimpleEQAudioProcessor&);
     ~SimpleEQAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
     void sliderValueChanged(juce::Slider* slider);
- 
+
 private:
 
 
-    juce::Slider lowFreqDial { "lowFreqDial" };
-    juce::Label lowFreqLabel {"Low Cut Frequency"};
+    juce::Slider lowFreqDial{ "lowFreqDial" };
+    juce::Label lowFreqLabel{ "Low Cut Frequency" };
 
     juce::Slider peakFreqDial{ "peakFreqDial" };
     juce::Label peakFreqLabel{ "Peak Frequency" };
