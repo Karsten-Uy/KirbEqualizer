@@ -14,6 +14,21 @@ Placeholder::Placeholder()
     juce::Random r;
     customColour = juce::Colour(r.nextInt(255), r.nextInt(255), r.nextInt(255));
 }
+//==============================================================================
+
+void LowCutControls::paint(juce::Graphics& g)
+{
+    using namespace juce;
+    auto bounds = getLocalBounds();
+    g.setColour(juce::Colours::steelblue);
+    g.fillAll();
+
+    auto localBounds = getLocalBounds();
+
+    bounds.reduce(3, 3);
+    g.setColour(juce::Colours::slategrey);
+    g.fillRoundedRectangle(bounds.toFloat(), 3);
+}
 
 
 //==============================================================================

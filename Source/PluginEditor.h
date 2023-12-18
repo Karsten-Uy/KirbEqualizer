@@ -26,6 +26,50 @@ struct Placeholder : juce::Component
 
 };
 
+struct LowCutControls : juce::Component
+{
+    void paint(juce::Graphics& g) override;
+};
+
+struct LookAndFeel : juce::LookAndFeel_V4
+{
+    void drawRotarySlider(juce::Graphics&, int x, int y, int width, int height,
+        float sliderPosProportional, float rotaryStartAngle,
+        float rotaryEndAngle, juce::Slider&) override {};
+
+};
+
+struct RotarySliderWithLabels : juce::Slider
+{
+    RotarySliderWithLabels(
+        juce::RangedAudioParameter& rap, 
+        const juce::String& unitSuffix) :
+            juce::Slider(
+                juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+                juce::Slider::TextEntryBoxPosition::NoTextBox),
+        param(&rap),
+        suffix(unitSuffix)
+    {
+        setLookAndFeel(&lnf);
+    }
+
+    ~RotarySliderWithLabels() 
+    {
+        setLookAndFeel(nullptr);
+    }
+
+    void paint(juce::Graphics& g) override;
+    juce::Rectangle<int> getSliderBounds() const;
+    int getTextHeight() const { return 14; };
+    juce::String getDisplayString() const;
+
+
+private:
+    LookAndFeel lnf;
+
+    juce::RangedAudioParameter* param;
+    juce::String suffix;
+};
 
 /**
 */
@@ -89,7 +133,9 @@ private:
         lowSlopeSliderAttachment,
         highSlopeSliderAttachment;
 
-    Placeholder titleStrip, analyzer, gainControl, lowControl, peakControl, highControl;
+    Placeholder titleStrip, analyzer, gainControl, /* lowControl, */ peakControl, highControl;
+
+    LowCutControls lowControl;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleEQAudioProcessorEditor)
 };
