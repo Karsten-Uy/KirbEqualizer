@@ -11,7 +11,7 @@
 
 //==============================================================================
 
-void LookAndFeel::drawRotarySlider(juce::Graphics& g,
+void BigDialLAF::drawRotarySlider(juce::Graphics& g,
     int x,
     int y,
     int width,
@@ -21,160 +21,73 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     float rotaryEndAngle,
     juce::Slider& slider)
 {
-    using namespace juce;
+    auto radius = (float)juce::jmin(width / 2, height / 2) - 4.0f;
+    auto centreX = (float)x + (float)width * 0.5f;
+    auto centreY = (float)y + (float)height * 0.5f;
+    auto rx = centreX - radius;
+    auto ry = centreY - radius;
+    auto rw = radius * 2.0f;
+    auto angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
 
-    auto bounds = Rectangle<float>(x, y, width, height);
+    // fill
+    g.setColour(juce::Colours::orange);
+    g.fillEllipse(rx, ry, rw, rw);
 
-    auto enabled = slider.isEnabled();
+    // outline
+    g.setColour(juce::Colours::red);
+    g.drawEllipse(rx, ry, rw, rw, 1.0f);
 
-    g.setColour(enabled ? Colour(97u, 18u, 167u) : Colours::darkgrey);
-    g.fillEllipse(bounds);
+    juce::Path p;
+    auto pointerLength = radius * 0.33f;
+    auto pointerThickness = 2.0f;
+    p.addRectangle(-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
+    p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
-    g.setColour(enabled ? Colour(255u, 154u, 1u) : Colours::grey);
-    g.drawEllipse(bounds, 1.f);
-
-    if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
-    {
-        auto center = bounds.getCentre();
-        Path p;
-
-        Rectangle<float> r;
-        r.setLeft(center.getX() - 2);
-        r.setRight(center.getX() + 2);
-        r.setTop(bounds.getY());
-        r.setBottom(center.getY() - rswl->getTextHeight() * 1.5);
-
-        p.addRoundedRectangle(r, 2.f);
-
-        jassert(rotaryStartAngle < rotaryEndAngle);
-
-        auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
-
-        p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
-
-        g.fillPath(p);
-
-        g.setFont(rswl->getTextHeight());
-        auto text = rswl->getDisplayString();
-        auto strWidth = g.getCurrentFont().getStringWidth(text);
-
-        r.setSize(strWidth + 4, rswl->getTextHeight() + 2);
-        r.setCentre(bounds.getCentre());
-
-        g.setColour(enabled ? Colours::black : Colours::darkgrey);
-        g.fillRect(r);
-
-        g.setColour(enabled ? Colours::white : Colours::lightgrey);
-        g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
-    }
+    // pointer
+    g.setColour(juce::Colours::yellow);
+    g.fillPath(p);
+    
 }
 
 //==============================================================================
-void RotarySliderWithLabels::paint(juce::Graphics& g)
+
+void SmallDialLAF::drawRotarySlider(juce::Graphics& g,
+    int x,
+    int y,
+    int width,
+    int height,
+    float sliderPosProportional,
+    float rotaryStartAngle,
+    float rotaryEndAngle,
+    juce::Slider& slider)
 {
-    using namespace juce;
+    
+    auto radius = (float)juce::jmin(width / 2, height / 2) - 4.0f;
+    auto centreX = (float)x + (float)width * 0.5f;
+    auto centreY = (float)y + (float)height * 0.5f;
+    auto rx = centreX - radius;
+    auto ry = centreY - radius;
+    auto rw = radius * 2.0f;
+    auto angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
 
-    auto startAng = degreesToRadians(180.f + 45.f);
-    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
+    // fill
+    g.setColour(juce::Colours::orange);
+    g.fillEllipse(rx, ry, rw, rw);
 
-    auto range = getRange();
+    // outline
+    g.setColour(juce::Colours::red);
+    g.drawEllipse(rx, ry, rw, rw, 1.0f);
 
-    auto sliderBounds = getSliderBounds();
+    juce::Path p;
+    auto pointerLength = radius * 0.33f;
+    auto pointerThickness = 2.0f;
+    p.addRectangle(-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
+    p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
-    //    g.setColour(Colours::red);
-    //    g.drawRect(getLocalBounds());
-    //    g.setColour(Colours::yellow);
-    //    g.drawRect(sliderBounds);
-
-    getLookAndFeel().drawRotarySlider(g,
-        sliderBounds.getX(),
-        sliderBounds.getY(),
-        sliderBounds.getWidth(),
-        sliderBounds.getHeight(),
-        jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
-        startAng,
-        endAng,
-        *this);
-
-    auto center = sliderBounds.toFloat().getCentre();
-    auto radius = sliderBounds.getWidth() * 0.5f;
-
-    g.setColour(Colour(0u, 172u, 1u));
-    g.setFont(getTextHeight());
-
-    auto numChoices = labels.size();
-    for (int i = 0; i < numChoices; ++i)
-    {
-        auto pos = labels[i].pos;
-        jassert(0.f <= pos);
-        jassert(pos <= 1.f);
-
-        auto ang = jmap(pos, 0.f, 1.f, startAng, endAng);
-
-        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.5f + 1, ang);
-
-        Rectangle<float> r;
-        auto str = labels[i].label;
-        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
-        r.setCentre(c);
-        r.setY(r.getY() + getTextHeight());
-
-        g.drawFittedText(str, r.toNearestInt(), juce::Justification::centred, 1);
-    }
-
-}
-
-juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
-{
-    auto bounds = getLocalBounds();
-
-    auto size = juce::jmin(bounds.getWidth(), bounds.getHeight());
-
-    size -= getTextHeight() * 2;
-    juce::Rectangle<int> r;
-    r.setSize(size, size);
-    r.setCentre(bounds.getCentreX(), 0);
-    r.setY(2);
-
-    return r;
-
-}
-
-juce::String RotarySliderWithLabels::getDisplayString() const
-{
-    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
-        return choiceParam->getCurrentChoiceName();
-
-    juce::String str;
-    bool addK = false;
-
-    if (auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
-    {
-        float val = getValue();
-
-        if (val > 999.f)
-        {
-            val /= 1000.f; //1001 / 1000 = 1.001
-            addK = true;
-        }
-
-        str = juce::String(val, (addK ? 2 : 0));
-    }
-    else
-    {
-        jassertfalse; //this shouldn't happen!
-    }
-
-    if (suffix.isNotEmpty())
-    {
-        str << " ";
-        if (addK)
-            str << "k";
-
-        str << suffix;
-    }
-
-    return str;
+    // pointer
+    g.setColour(juce::Colours::yellow);
+    g.fillPath(p);
+    
 }
 
 //==============================================================================
@@ -335,7 +248,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     peakGainDial.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     peakGainDial.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 10);
     peakGainDial.setRange(-24, 24);
-    peakGainDial.setTextValueSuffix(" Db");
+    peakGainDial.setTextValueSuffix(" dB");
     peakGainDial.addListener(this);
 
     addAndMakeVisible(peakFreqLabel);
@@ -343,12 +256,39 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     peakFreqLabel.setSize(100, 20);
     peakFreqLabel.setJustificationType(juce::Justification::bottom);
 
+    // Gain Slider
+    addAndMakeVisible(outGainSlider);
+    outGainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    outGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 75, 20);
+    outGainSlider.setRange(-144,24);
+    outGainSlider.setTextValueSuffix(" dB");
+    outGainSlider.addListener(this);
 
+    addAndMakeVisible(outGainLabel);
+    outGainLabel.setText("Output Gain", juce::NotificationType::dontSendNotification);
+    outGainLabel.setSize(100, 20);
+    outGainLabel.setJustificationType(juce::Justification::bottom);
+
+
+    // Big Dial LAF
+
+    //lowFreqDial.setLookAndFeel(&bigDialLAF);
+    //highFreqDial.setLookAndFeel(&bigDialLAF);
+    //peakFreqDial.setLookAndFeel(&bigDialLAF);
+
+    // Small Dial LAF
+    //peakQDial.setLookAndFeel(&smallDialLAF);
+    //peakGainDial.setLookAndFeel(&smallDialLAF);
    
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
+    lowFreqDial.setLookAndFeel(nullptr);
+    highFreqDial.setLookAndFeel(nullptr);
+    peakFreqDial.setLookAndFeel(nullptr);
+    peakQDial.setLookAndFeel(nullptr);
+    peakGainDial.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -383,6 +323,9 @@ void SimpleEQAudioProcessorEditor::resized()
     peakFreqDial.setBounds(peakControl.getBounds().removeFromTop(110).removeFromBottom(90));
     peakQDial.setBounds(peakControl.getBounds().removeFromBottom(70).removeFromTop(60).removeFromRight(55).removeFromLeft(50));
     peakGainDial.setBounds(peakControl.getBounds().removeFromBottom(70).removeFromTop(60).removeFromLeft(55).removeFromRight(50));
+
+    outGainSlider.setBounds(gainControl.getBounds().removeFromTop(380).removeFromBottom(360));
+    outGainLabel.setBounds(gainControl.getBounds().removeFromBottom(30));
 
 }
 
