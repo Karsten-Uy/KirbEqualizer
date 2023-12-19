@@ -191,6 +191,16 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     lowSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowSlopeSelect),
     highSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highSlopeSelect)
 {
+    // Stuff for Response Curve
+    const auto& params = audioProcessor.getParameters();
+
+    for (auto param : params)
+    {
+        param->addListener(this);
+    }
+
+    startTimer(60);
+
     setSize(400, 420);
 
     // Blocks
@@ -304,6 +314,13 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
     peakFreqDial.setLookAndFeel(nullptr);
     peakQDial.setLookAndFeel(nullptr);
     peakGainDial.setLookAndFeel(nullptr);
+
+    const auto& params = audioProcessor.getParameters();
+
+    for (auto param : params)
+    {
+        param->removeListener(this);
+    }
 }
 
 //==============================================================================
@@ -436,7 +453,12 @@ void SimpleEQAudioProcessorEditor::timerCallback()
     if (parameterChanged.compareAndSetBool(false, true))
     {
         // update monochain
+        auto chainSettings = getChainSettings(audioProcessor.apvts);
+        auto peakCoefficients = makePeakFilter(chainSettings,audioProcessor.getSampleRate());
+        updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+        
         //signal repaint
+        repaint();
     }
 }
 
