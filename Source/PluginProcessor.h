@@ -31,6 +31,13 @@ using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>; // 
 
 using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
 
+// Putting here for editing response curve
+using Coefficients = Filter::CoefficientsPtr;
+void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate);
+
+
 enum ChainPositions
 {
     LowCut,
@@ -94,10 +101,6 @@ private:
     MonoChain leftChain, rightChain;
 
     void updatePeakFilter(const ChainSettings& chainSettings);
-
-    using Coefficients = Filter::CoefficientsPtr;
-
-    static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
 
     template<typename ChainType, typename CoefficientType>
     void updateCutFilter(

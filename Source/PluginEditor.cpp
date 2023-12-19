@@ -425,3 +425,18 @@ void SimpleEQAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 
 }
 
+void SimpleEQAudioProcessorEditor::parameterValueChanged(int parameterIndex, float newValue)
+{
+    parameterChanged = true; // This parameter indicates that a parameter value has changed and 
+                             // and needs to be updated
+}
+
+void SimpleEQAudioProcessorEditor::timerCallback()
+{
+    if (parameterChanged.compareAndSetBool(false, true))
+    {
+        // update monochain
+        //signal repaint
+    }
+}
+

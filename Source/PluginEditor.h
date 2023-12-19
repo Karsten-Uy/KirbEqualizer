@@ -78,7 +78,7 @@ struct SmallDialLAF : juce::LookAndFeel_V4
 /**
 */
 class SimpleEQAudioProcessorEditor : public juce::AudioProcessorEditor,
-    public juce::Slider::Listener
+    juce::Slider::Listener, juce::AudioProcessorParameter::Listener, juce::Timer
 {
 public:
     SimpleEQAudioProcessorEditor(SimpleEQAudioProcessor&);
@@ -89,7 +89,15 @@ public:
 
     void sliderValueChanged(juce::Slider* slider);
 
+    void parameterValueChanged(int parameterIndex, float newValue) override;
+
+    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override {}
+
+    virtual void timerCallback() override;
+
 private:
+
+    juce::Atomic<bool> parameterChanged{ false };
 
     juce::Slider lowFreqDial{ "lowFreqDial" };
     juce::Label lowFreqLabel{ "Low Cut Frequency" };
