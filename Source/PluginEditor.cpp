@@ -312,11 +312,10 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
     using namespace juce;
 
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll(juce::Colours::black);
-
+    g.fillAll(juce::Colours::black); // NOTE: this is the background of the visualizer
 
     // Drawing response curve
-    auto responseArea = getLocalBounds().removeFromTop(250).removeFromBottom(200);
+    auto responseArea = analyzer.getBounds();
     auto w = responseArea.getWidth();
 
     auto& lowcut = monoChain.get<ChainPositions::LowCut>();
@@ -380,11 +379,14 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX()+i,map(mags[i]));
     }
 
-    g.setColour(Colours::black);
-    g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
+    g.setColour(Colours::steelblue); // colour of border
+    g.drawRoundedRectangle(responseArea.toFloat(), 3, 3);
 
-    g.setColour(Colours::white);
+    g.setColour(Colours::white); // colour of line
     g.strokePath(responseCurve, PathStrokeType(2.f));
+
+
+    analyzer.setVisible(false);
 
 }
 
