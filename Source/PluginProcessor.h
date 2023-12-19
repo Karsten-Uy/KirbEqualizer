@@ -22,7 +22,7 @@ struct ChainSettings {
     float peakFreq{ 0 }, peakGainInDecibels{ 0 }, peakQuality{ 1.f };
     float lowCutFreq{ 0 }, highCutFreq{ 0 };
     int lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
-    float outputGainInDB { 0 };
+    float outputGainInDB{ 0 };
 };
 
 using Filter = juce::dsp::IIR::Filter<float>;
@@ -148,7 +148,7 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     juce::AudioProcessorValueTreeState apvts{ *this,nullptr,"Parameters",createParameterLayout() };
-    
+
 
 private:
 

@@ -211,6 +211,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     addAndMakeVisible(lowControl);
     addAndMakeVisible(peakControl);
     addAndMakeVisible(highControl);
+    addAndMakeVisible(gridLines);
 
     // LowCut
 
@@ -332,7 +333,7 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
     g.fillAll(juce::Colours::black); // NOTE: this is the background of the visualizer
 
     // Drawing response curve
-    auto responseArea = analyzer.getBounds();
+    auto responseArea = gridLines.getBounds();
     auto w = responseArea.getWidth();
 
     auto& lowcut = monoChain.get<ChainPositions::LowCut>();
@@ -396,6 +397,11 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
 
+    // For Response curve Grid
+    g.drawImage(background, gridLines.getBounds().toFloat());
+
+
+    // For Response Curve
     g.setColour(Colours::steelblue); // colour of border
     g.drawRoundedRectangle(responseArea.toFloat(), 3, 3);
 
@@ -404,6 +410,8 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
 
 
     analyzer.setVisible(false);
+    gridLines.setVisible(false);
+
 
 }
 
@@ -414,6 +422,14 @@ void SimpleEQAudioProcessorEditor::resized()
     gainControl.setBounds(bounds.removeFromRight(70));
     titleStrip.setBounds(bounds.removeFromTop(50));
     analyzer.setBounds(bounds.removeFromTop(200));
+
+    gridLines.setBounds(analyzer.getBounds());
+    gridLines.setBounds(gridLines.getBounds()
+        .removeFromBottom(200)
+        .removeFromTop(180)
+        .removeFromLeft(330)
+        .removeFromRight(310));
+
     lowControl.setBounds(bounds.removeFromLeft(110));
     peakControl.setBounds(bounds.removeFromLeft(110));
     highControl.setBounds(bounds.removeFromLeft(110));
@@ -434,6 +450,35 @@ void SimpleEQAudioProcessorEditor::resized()
     outGainSlider.setBounds(gainControl.getBounds().removeFromTop(380).removeFromBottom(360));
     outGainLabel.setBounds(gainControl.getBounds().removeFromBottom(30));
 
+    // for response curve grid
+    using namespace juce;
+    background = Image(Image::PixelFormat::RGB, analyzer.getWidth(), analyzer.getHeight(), true);
+
+    Graphics g(background);
+
+    Array<float> freqs
+    {
+        20,30,40,50,100,
+        200,300,400,500,1000,
+        2000,3000,4000,5000,10000,
+        20000
+    };
+
+    g.setColour(Colours::white);
+    for (auto f : freqs)
+    {
+        auto normX = mapFromLog10(f, 20.f, 20000.f);
+        g.drawVerticalLine(analyzer.getWidth() * normX, 0.f, analyzer.getHeight());
+    }
+
+    Array<float> gains
+    {
+        -24,-12,0,12,24
+    };
+    for (auto gDb : gains) {
+        auto y = jmap(gDb, -24.f, 24.f, float(analyzer.getHeight()), 0.f);
+        g.drawHorizontalLine(y, 0, analyzer.getWidth());
+    }
 
 }
 

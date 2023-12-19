@@ -95,7 +95,7 @@ void SimpleEQAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
 {
     juce::dsp::ProcessSpec spec; // the block to be passed into the filters
 
-    previousGain = pow(10,*apvts.getRawParameterValue("Output Gain")/20);
+    previousGain = pow(10, *apvts.getRawParameterValue("Output Gain") / 20);
 
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 1;
@@ -166,10 +166,10 @@ void SimpleEQAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         buffer.applyGainRamp(0, buffer.getNumSamples(), previousGain, currentGain);
         previousGain = currentGain;
     }
-              
+
 
     updateFilters();
-   
+
     juce::dsp::AudioBlock<float> block(buffer); // buffer has the audio information
 
     auto leftBlock = block.getSingleChannelBlock(0); // gets left channel
@@ -191,7 +191,7 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-    return new SimpleEQAudioProcessorEditor (*this);
+    return new SimpleEQAudioProcessorEditor(*this);
     return new juce::GenericAudioProcessorEditor(*this);
 }
 
@@ -225,14 +225,14 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     return settings;
 }
 
-void /*SimpleEQAudioProcessor::*/ updateCoefficients(Coefficients & old, const Coefficients & replacements)
+void /*SimpleEQAudioProcessor::*/ updateCoefficients(Coefficients& old, const Coefficients& replacements)
 {
     *old = *replacements;
 }
 
 void SimpleEQAudioProcessor::updateLowCutFilters(const ChainSettings& chainSettings)
 {
-    auto lowCutCoefficients = makeLowCutFilter(chainSettings,getSampleRate()); // This is for filter, to find why, refer to tutorial, 1:00:00
+    auto lowCutCoefficients = makeLowCutFilter(chainSettings, getSampleRate()); // This is for filter, to find why, refer to tutorial, 1:00:00
 
     auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
     updateCutFilter(leftLowCut, lowCutCoefficients, static_cast<Slope>(chainSettings.lowCutSlope));
@@ -244,7 +244,7 @@ void SimpleEQAudioProcessor::updateLowCutFilters(const ChainSettings& chainSetti
 
 void SimpleEQAudioProcessor::updateHighCutFilters(const ChainSettings& chainSettings)
 {
-    auto highCutCoefficients = makeHighCutFilter(chainSettings,getSampleRate()); // This is for filter, to find why, refer to tutorial, 1:00:00
+    auto highCutCoefficients = makeHighCutFilter(chainSettings, getSampleRate()); // This is for filter, to find why, refer to tutorial, 1:00:00
 
     auto& lefthighCut = leftChain.get<ChainPositions::HighCut>();
     updateCutFilter(lefthighCut, highCutCoefficients, static_cast<Slope>(chainSettings.highCutSlope));
@@ -276,7 +276,7 @@ Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRat
 
 void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings)
 {
-    auto peakCoefficients = makePeakFilter(chainSettings,getSampleRate());
+    auto peakCoefficients = makePeakFilter(chainSettings, getSampleRate());
 
     updateCoefficients(leftChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
     updateCoefficients(rightChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
