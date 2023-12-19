@@ -46,7 +46,7 @@ void BigDialLAF::drawRotarySlider(juce::Graphics& g,
     // pointer
     g.setColour(juce::Colours::yellow);
     g.fillPath(p);
-    
+
 }
 
 //==============================================================================
@@ -61,7 +61,7 @@ void SmallDialLAF::drawRotarySlider(juce::Graphics& g,
     float rotaryEndAngle,
     juce::Slider& slider)
 {
-    
+
     auto radius = (float)juce::jmin(width / 2, height / 2) - 4.0f;
     auto centreX = (float)x + (float)width * 0.5f;
     auto centreY = (float)y + (float)height * 0.5f;
@@ -87,7 +87,7 @@ void SmallDialLAF::drawRotarySlider(juce::Graphics& g,
     // pointer
     g.setColour(juce::Colours::yellow);
     g.fillPath(p);
-    
+
 }
 
 //==============================================================================
@@ -222,10 +222,10 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     lowFreqDial.addListener(this);
 
     addAndMakeVisible(lowFreqLabel);
-    lowFreqLabel.setText("Low Cut Controls",juce::NotificationType::dontSendNotification);
-    lowFreqLabel.setSize(100,20);
+    lowFreqLabel.setText("Low Cut Controls", juce::NotificationType::dontSendNotification);
+    lowFreqLabel.setSize(100, 20);
     lowFreqLabel.setJustificationType(juce::Justification::bottom);
-       
+
     addAndMakeVisible(lowSlopeSelect);
     lowSlopeSelect.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
     lowSlopeSelect.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
@@ -286,7 +286,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     addAndMakeVisible(outGainSlider);
     outGainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     outGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 75, 20);
-    outGainSlider.setRange(-144,24);
+    outGainSlider.setRange(-144, 24);
     outGainSlider.setTextValueSuffix(" dB");
     outGainSlider.addListener(this);
 
@@ -304,7 +304,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     // Small Dial LAF
     //peakQDial.setLookAndFeel(&smallDialLAF);
     //peakGainDial.setLookAndFeel(&smallDialLAF);
-   
+
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
@@ -345,11 +345,11 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
 
     mags.resize(w);
 
-    for (int i = 0; i < w; ++i) 
+    for (int i = 0; i < w; ++i)
     {
         double mag = 1.f;
-        auto freq = mapToLog10(double(i)/double(w),20.0,20000.0);
-        mag *= peak.coefficients->getMagnitudeForFrequency(freq,sampleRate);
+        auto freq = mapToLog10(double(i) / double(w), 20.0, 20000.0);
+        mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
 
         if (!lowcut.isBypassed<0>()) {
             mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
@@ -393,7 +393,7 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
 
     for (int i = 1; i < mags.size(); ++i)
     {
-        responseCurve.lineTo(responseArea.getX()+i,map(mags[i]));
+        responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
 
     g.setColour(Colours::steelblue); // colour of border
@@ -445,7 +445,7 @@ void SimpleEQAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 void SimpleEQAudioProcessorEditor::parameterValueChanged(int parameterIndex, float newValue)
 {
     parameterChanged = true; // This parameter indicates that a parameter value has changed and 
-                             // and needs to be updated
+    // and needs to be updated
 }
 
 void SimpleEQAudioProcessorEditor::timerCallback()
@@ -454,10 +454,10 @@ void SimpleEQAudioProcessorEditor::timerCallback()
     {
         // update monochain
         auto chainSettings = getChainSettings(audioProcessor.apvts);
-        auto peakCoefficients = makePeakFilter(chainSettings,audioProcessor.getSampleRate());
+        auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
         updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
-        
-        auto lowCutCoefficients = makeLowCutFilter(chainSettings,audioProcessor.getSampleRate());
+
+        auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
         auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
 
         updateCutFilter(monoChain.get<ChainPositions::LowCut>(),

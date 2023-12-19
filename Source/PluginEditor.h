@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin editor.
+    This file contains the basic framework code for a JUCE plugin processor.
 
   ==============================================================================
 */
@@ -9,159 +9,161 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
 
-//==============================================================================
-
-struct Placeholder : juce::Component
+enum Slope // enums can be expressed as integers
 {
-    Placeholder();
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48
+};
 
-    juce::Colour customColour;
+struct ChainSettings {
+    float peakFreq{ 0 }, peakGainInDecibels{ 0 }, peakQuality{ 1.f };
+    float lowCutFreq{ 0 }, highCutFreq{ 0 };
+    int lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
+    float outputGainInDB{ 0 };
+};
 
-    void paint(juce::Graphics& g) override
+using Filter = juce::dsp::IIR::Filter<float>;
+
+using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>; // each filter can be instantiated with a specified x*12 db slope, so you need 4 for the high and low cuts
+
+using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+
+// Putting here for editing response curve
+using Coefficients = Filter::CoefficientsPtr;
+void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate);
+
+
+template<int Index, typename ChainType, typename CoefficientType>
+void update(ChainType& chain, const CoefficientType& coefficients)
+{
+    updateCoefficients(chain.template get<Index>().coefficients, coefficients[Index]);
+    chain.template setBypassed<Index>(false);
+}
+
+template<typename ChainType, typename CoefficientType>
+void updateCutFilter(ChainType& chain,
+    const CoefficientType& coefficients,
+    const Slope& slope)
+{
+    chain.template setBypassed<0>(true);
+    chain.template setBypassed<1>(true);
+    chain.template setBypassed<2>(true);
+    chain.template setBypassed<3>(true);
+
+    switch (slope)
     {
-        g.fillAll(customColour);
+    case Slope_48:
+    {
+        update<3>(chain, coefficients);
     }
+    case Slope_36:
+    {
+        update<2>(chain, coefficients);
+    }
+    case Slope_24:
+    {
+        update<1>(chain, coefficients);
+    }
+    case Slope_12:
+    {
+        update<0>(chain, coefficients);
+    }
+    }
+}
 
+
+inline auto makeLowCutFilter(const ChainSettings& chainSettings, double sampleRate)
+{
+    return juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(
+        chainSettings.lowCutFreq,
+        sampleRate,
+        2 * (chainSettings.lowCutSlope + 1));
+}
+
+inline auto makeHighCutFilter(const ChainSettings& chainSettings, double sampleRate)
+{
+    return juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        chainSettings.highCutFreq,
+        sampleRate,
+        2 * (chainSettings.highCutSlope + 1));
+}
+
+enum ChainPositions
+{
+    LowCut,
+    Peak,
+    HighCut
 };
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
 //==============================================================================
-
-struct LowCutControls : juce::Component
-{
-    void paint(juce::Graphics& g) override;
-};
-
-struct PeakControls : juce::Component
-{
-    void paint(juce::Graphics& g) override;
-};
-
-struct HighCutControls : juce::Component
-{
-    void paint(juce::Graphics& g) override;
-};
-
-struct GainControls : juce::Component
-{
-    void paint(juce::Graphics& g) override;
-};
-
-struct Analyzer : juce::Component
-{
-    void paint(juce::Graphics& g) override;
-};
-
-struct BigDialLAF : juce::LookAndFeel_V4
-{
-    void drawRotarySlider(juce::Graphics&, int x, int y, int width, int height,
-        float sliderPosProportional, float rotaryStartAngle,
-        float rotaryEndAngle, juce::Slider&) override;
-
-};
-
-struct SmallDialLAF : juce::LookAndFeel_V4
-{
-    void drawRotarySlider(juce::Graphics&, int x, int y, int width, int height,
-        float sliderPosProportional, float rotaryStartAngle,
-        float rotaryEndAngle, juce::Slider&) override;
-
-};
-
-//==============================================================================
-
-
-//==============================================================================
-
-
 /**
 */
-class SimpleEQAudioProcessorEditor : public juce::AudioProcessorEditor,
-    juce::Slider::Listener, juce::AudioProcessorParameter::Listener, juce::Timer
+class SimpleEQAudioProcessor : public juce::AudioProcessor
 {
 public:
-    SimpleEQAudioProcessorEditor(SimpleEQAudioProcessor&);
-    ~SimpleEQAudioProcessorEditor() override;
+    //==============================================================================
+    SimpleEQAudioProcessor();
+    ~SimpleEQAudioProcessor() override;
 
-    void paint(juce::Graphics&) override;
-    void resized() override;
+    //==============================================================================
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void releaseResources() override;
 
-    void sliderValueChanged(juce::Slider* slider);
+#ifndef JucePlugin_PreferredChannelConfigurations
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+#endif
 
-    void parameterValueChanged(int parameterIndex, float newValue) override;
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
-    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override {}
+    //==============================================================================
+    juce::AudioProcessorEditor* createEditor() override;
+    bool hasEditor() const override;
 
-    virtual void timerCallback() override;
+    //==============================================================================
+    const juce::String getName() const override;
+
+    bool acceptsMidi() const override;
+    bool producesMidi() const override;
+    bool isMidiEffect() const override;
+    double getTailLengthSeconds() const override;
+
+    //==============================================================================
+    int getNumPrograms() override;
+    int getCurrentProgram() override;
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
+
+    //==============================================================================
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
+
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    juce::AudioProcessorValueTreeState apvts{ *this,nullptr,"Parameters",createParameterLayout() };
+
 
 private:
 
-    juce::Atomic<bool> parameterChanged{ false };
+    MonoChain leftChain, rightChain;
 
-    juce::Slider lowFreqDial{ "lowFreqDial" };
-    juce::Label lowFreqLabel{ "Low Cut Frequency" };
+    void updatePeakFilter(const ChainSettings& chainSettings);
 
-    juce::Slider peakFreqDial{ "peakFreqDial" };
-    juce::Label peakFreqLabel{ "Peak Frequency" };
+    void updateLowCutFilters(const ChainSettings& chainSettings);
+    void updateHighCutFilters(const ChainSettings& chainSettings);
 
-    juce::Slider highFreqDial{ "highFreqDial" };
-    juce::Label highFreqLabel{ "High Cut Frequency" };
+    float gainValue;
+    float previousGain;
 
-    juce::Slider peakQDial{ "peakQDial" };
-    juce::Label peakQLabel{ "Peak Q Dial" };
+    void updateFilters();
 
-    juce::Slider peakGainDial{ "peakGainDial" };
-    juce::Label peakGainLabel{ "Peak Gain" };
-
-    juce::Slider outGainSlider{ "outGainSlider" };
-    juce::Label outGainLabel{ "Output Gain" };
-
-    juce::Slider lowSlopeSelect{ "lowSlopeSelect" };
-
-    juce::Slider highSlopeSelect{ "highSlopeSelect" };
-
-
-
-    SimpleEQAudioProcessor& audioProcessor;
-
-    using APVTS = juce::AudioProcessorValueTreeState;
-    using sliderAttachment = APVTS::SliderAttachment;
-    using comboBoxAttachment = APVTS::ComboBoxAttachment;
-
-    // For Response Curve
-    MonoChain monoChain;
-
-
-    sliderAttachment // connects it to the parameter in the process block
-        lowFreqSliderAttachment,
-        peakFreqSilderAttachment,
-        highFreqSliderAttachment,
-        peakQSliderAttachemnt,
-        peakGainSliderAttachment,
-        outGainSliderAttachment,
-        lowSlopeSliderAttachment,
-        highSlopeSliderAttachment;
-
-    Placeholder titleStrip /* analyzer, gainControl, lowControl, peakControl, highControl*/ ;
-
-    LowCutControls lowControl;
-
-    PeakControls peakControl;
-
-    HighCutControls highControl;
-
-    GainControls gainControl;
-
-    Analyzer analyzer;
-
-
-
-
-
-    BigDialLAF bigDialLAF;
-
-    SmallDialLAF smallDialLAF;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleEQAudioProcessorEditor)
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleEQAudioProcessor)
 };
