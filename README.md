@@ -35,4 +35,4 @@ Clone the git repository
 
 Copy the "KirbEqualizer.vst3" to your DAW vst directory
 
-Scan for plugins in your DAW and use in your desired DAW
+Scan for plugins in your DAW and use freely in your desired DAW
