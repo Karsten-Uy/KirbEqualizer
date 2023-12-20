@@ -21,7 +21,7 @@ void BigDialLAF::drawRotarySlider(juce::Graphics& g,
     float rotaryEndAngle,
     juce::Slider& slider)
 {
-    auto radius = (float)juce::jmin(width / 2, height / 2) - 4.0f;
+    auto radius = (float)juce::jmin(width / 2, height / 2) - 10.0f;
     auto centreX = (float)x + (float)width * 0.5f;
     auto centreY = (float)y + (float)height * 0.5f;
     auto rx = centreX - radius;
@@ -30,12 +30,12 @@ void BigDialLAF::drawRotarySlider(juce::Graphics& g,
     auto angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
 
     // fill
-    g.setColour(juce::Colours::orange);
+    g.setColour(juce::Colours::steelblue);
     g.fillEllipse(rx, ry, rw, rw);
 
     // outline
-    g.setColour(juce::Colours::red);
-    g.drawEllipse(rx, ry, rw, rw, 1.0f);
+    g.setColour(juce::Colours::lightsteelblue);
+    g.drawEllipse(rx, ry, rw, rw, 2.0f);
 
     juce::Path p;
     auto pointerLength = radius * 0.33f;
@@ -44,7 +44,7 @@ void BigDialLAF::drawRotarySlider(juce::Graphics& g,
     p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
     // pointer
-    g.setColour(juce::Colours::yellow);
+    g.setColour(juce::Colours::lightsteelblue);
     g.fillPath(p);
 
 }
@@ -62,7 +62,7 @@ void SmallDialLAF::drawRotarySlider(juce::Graphics& g,
     juce::Slider& slider)
 {
 
-    auto radius = (float)juce::jmin(width / 2, height / 2) - 4.0f;
+    auto radius = (float)juce::jmin(width / 2, height / 2) - 12.0f;
     auto centreX = (float)x + (float)width * 0.5f;
     auto centreY = (float)y + (float)height * 0.5f;
     auto rx = centreX - radius;
@@ -71,12 +71,12 @@ void SmallDialLAF::drawRotarySlider(juce::Graphics& g,
     auto angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
 
     // fill
-    g.setColour(juce::Colours::orange);
+    g.setColour(juce::Colours::steelblue);
     g.fillEllipse(rx, ry, rw, rw);
 
     // outline
-    g.setColour(juce::Colours::red);
-    g.drawEllipse(rx, ry, rw, rw, 1.0f);
+    g.setColour(juce::Colours::lightsteelblue);
+    g.drawEllipse(rx, ry, rw, rw, 2.0f);
 
     juce::Path p;
     auto pointerLength = radius * 0.33f;
@@ -85,9 +85,27 @@ void SmallDialLAF::drawRotarySlider(juce::Graphics& g,
     p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
     // pointer
-    g.setColour(juce::Colours::yellow);
+    g.setColour(juce::Colours::lightsteelblue);
     g.fillPath(p);
 
+}
+
+//==============================================================================
+
+void LinearBarLAF::drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
+    float sliderPos,
+    float minSliderPos,
+    float maxSliderPos,
+    const juce::Slider::SliderStyle style, juce::Slider& slider)
+{
+    if (slider.isBar())
+    {
+        g.setColour(slider.findColour(juce::Slider::trackColourId));
+        g.fillRect(slider.isHorizontal() ? juce::Rectangle<float>(static_cast<float> (x), (float)y + 0.5f, sliderPos - (float)x, (float)height - 1.0f)
+            : juce::Rectangle<float>((float)x + 0.5f, sliderPos, (float)width - 1.0f, (float)y + ((float)height - sliderPos)));
+
+        drawLinearSliderOutline(g, x, y, width, height, style, slider);
+    }
 }
 
 //==============================================================================
@@ -178,6 +196,22 @@ void Analyzer::paint(juce::Graphics& g)
 }
 
 //==============================================================================
+
+void TitleBlock::paint(juce::Graphics& g)
+{
+    using namespace juce;
+    auto bounds = getLocalBounds();
+    g.setColour(juce::Colours::steelblue);
+    g.fillAll();
+
+    auto localBounds = getLocalBounds();
+
+    bounds.reduce(3, 3);
+    g.setColour(juce::Colours::slategrey);
+    g.fillRoundedRectangle(bounds.toFloat(), 3);
+}
+
+//==============================================================================
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p),
 
@@ -205,7 +239,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
 
     // Blocks
 
-    addAndMakeVisible(titleStrip);
+    addAndMakeVisible(titleBlock);
     addAndMakeVisible(analyzer);
     addAndMakeVisible(gainControl);
     addAndMakeVisible(lowControl);
@@ -266,14 +300,14 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
 
     addAndMakeVisible(peakQDial);
     peakQDial.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    peakQDial.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 10);
+    peakQDial.setTextBoxStyle(juce::Slider::NoTextBox, false, 60, 10);
     peakQDial.setRange(0.1, 10);
     peakQDial.setTextValueSuffix("");
     peakQDial.addListener(this);
 
     addAndMakeVisible(peakGainDial);
     peakGainDial.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    peakGainDial.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 10);
+    peakGainDial.setTextBoxStyle(juce::Slider::NoTextBox, false, 60, 10);
     peakGainDial.setRange(-24, 24);
     peakGainDial.setTextValueSuffix(" dB");
     peakGainDial.addListener(this);
@@ -286,25 +320,32 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     // Gain Slider
     addAndMakeVisible(outGainSlider);
     outGainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    outGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 75, 20);
+    outGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
     outGainSlider.setRange(-144, 24);
     outGainSlider.setTextValueSuffix(" dB");
     outGainSlider.addListener(this);
 
     addAndMakeVisible(outGainLabel);
-    outGainLabel.setText("Output Gain", juce::NotificationType::dontSendNotification);
+    outGainLabel.setText("  Out Gain", juce::NotificationType::dontSendNotification);
     outGainLabel.setSize(100, 20);
     outGainLabel.setJustificationType(juce::Justification::bottom);
 
+    //For Title Block
+    addAndMakeVisible(titleLabel);
+    titleLabel.setText("KirbEqualizer", juce::NotificationType::dontSendNotification);
+    titleLabel.setSize(310,40);
+    titleLabel.setFont(juce::Font(35.0f, juce::Font::bold));
+    titleLabel.setJustificationType(juce::Justification::horizontallyCentred);
+
     // Big Dial LAF
 
-    //lowFreqDial.setLookAndFeel(&bigDialLAF);
-    //highFreqDial.setLookAndFeel(&bigDialLAF);
-    //peakFreqDial.setLookAndFeel(&bigDialLAF);
+    lowFreqDial.setLookAndFeel(&bigDialLAF);
+    highFreqDial.setLookAndFeel(&bigDialLAF);
+    peakFreqDial.setLookAndFeel(&bigDialLAF);
 
     // Small Dial LAF
-    //peakQDial.setLookAndFeel(&smallDialLAF);
-    //peakGainDial.setLookAndFeel(&smallDialLAF);
+    peakQDial.setLookAndFeel(&smallDialLAF);
+    peakGainDial.setLookAndFeel(&smallDialLAF);
 
 }
 
@@ -408,7 +449,6 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
     g.setColour(Colours::white); // colour of line
     g.strokePath(responseCurve, PathStrokeType(2.f));
 
-
     analyzer.setVisible(false);
     gridLines.setVisible(false);
 
@@ -420,15 +460,18 @@ void SimpleEQAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
 
     gainControl.setBounds(bounds.removeFromRight(70));
-    titleStrip.setBounds(bounds.removeFromTop(50));
+    titleBlock.setBounds(bounds.removeFromTop(50));
     analyzer.setBounds(bounds.removeFromTop(200));
 
     gridLines.setBounds(analyzer.getBounds());
+
+    /*
     gridLines.setBounds(gridLines.getBounds()
         .removeFromBottom(200)
         .removeFromTop(180)
         .removeFromLeft(330)
         .removeFromRight(310));
+    */
 
     lowControl.setBounds(bounds.removeFromLeft(110));
     peakControl.setBounds(bounds.removeFromLeft(110));
@@ -444,13 +487,16 @@ void SimpleEQAudioProcessorEditor::resized()
 
     peakFreqLabel.setBounds(peakControl.getBounds().removeFromTop(100).removeFromRight(100));
     peakFreqDial.setBounds(peakControl.getBounds().removeFromTop(110).removeFromBottom(90));
-    peakQDial.setBounds(peakControl.getBounds().removeFromBottom(70).removeFromTop(60).removeFromRight(55).removeFromLeft(50));
-    peakGainDial.setBounds(peakControl.getBounds().removeFromBottom(70).removeFromTop(60).removeFromLeft(55).removeFromRight(50));
+    peakQDial.setBounds(peakControl.getBounds().removeFromBottom(65).removeFromTop(65).removeFromRight(55).removeFromLeft(50));
+    peakGainDial.setBounds(peakControl.getBounds().removeFromBottom(65).removeFromTop(65).removeFromLeft(55).removeFromRight(50));
 
     outGainSlider.setBounds(gainControl.getBounds().removeFromTop(380).removeFromBottom(360));
     outGainLabel.setBounds(gainControl.getBounds().removeFromBottom(30));
 
+    titleLabel.setBounds(titleBlock.getBounds().removeFromBottom(45).removeFromLeft(100));
+
     // for response curve grid
+    /*
     using namespace juce;
     background = Image(Image::PixelFormat::RGB, analyzer.getWidth(), analyzer.getHeight(), true);
 
@@ -479,6 +525,7 @@ void SimpleEQAudioProcessorEditor::resized()
         auto y = jmap(gDb, -24.f, 24.f, float(analyzer.getHeight()), 0.f);
         g.drawHorizontalLine(y, 0, analyzer.getWidth());
     }
+    */
 
 }
 

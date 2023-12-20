@@ -53,12 +53,16 @@ struct Analyzer : juce::Component
     void paint(juce::Graphics& g) override;
 };
 
+struct TitleBlock : juce::Component
+{
+    void paint(juce::Graphics& g) override;
+};
+
 struct BigDialLAF : juce::LookAndFeel_V4
 {
     void drawRotarySlider(juce::Graphics&, int x, int y, int width, int height,
         float sliderPosProportional, float rotaryStartAngle,
         float rotaryEndAngle, juce::Slider&) override;
-
 };
 
 struct SmallDialLAF : juce::LookAndFeel_V4
@@ -69,11 +73,14 @@ struct SmallDialLAF : juce::LookAndFeel_V4
 
 };
 
+struct LinearBarLAF : juce::LookAndFeel_V4
+{
+    void drawLinearSlider(juce::Graphics&, int x, int y, int width, int height,
+        float sliderPos, float minSliderPos, float maxSliderPos,
+        juce::Slider::SliderStyle, juce::Slider&) override;
+};
+
 //==============================================================================
-
-
-//==============================================================================
-
 
 /**
 */
@@ -123,6 +130,8 @@ private:
 
     juce::Slider highSlopeSelect{ "highSlopeSelect" };
 
+    juce::Label titleLabel;
+
 
 
     SimpleEQAudioProcessor& audioProcessor;
@@ -145,8 +154,6 @@ private:
         lowSlopeSliderAttachment,
         highSlopeSliderAttachment;
 
-    Placeholder titleStrip /* analyzer, gainControl, lowControl, peakControl, highControl*/;
-
     LowCutControls lowControl;
 
     PeakControls peakControl;
@@ -159,7 +166,7 @@ private:
 
     Placeholder gridLines;
 
-
+    TitleBlock titleBlock;
 
 
     BigDialLAF bigDialLAF;
