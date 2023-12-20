@@ -30,6 +30,9 @@ Real-time updating of the response curve as filter parameters are adjusted.
 Technical Specifications:
 
 How to Use:
+
 Clone the git repository
+
 Copy the "KirbEqualizer.vst3" to your DAW vst directory
+
 Scan for plugins in your DAW and use in your desired DAW
