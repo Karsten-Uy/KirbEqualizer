@@ -92,24 +92,6 @@ void SmallDialLAF::drawRotarySlider(juce::Graphics& g,
 
 //==============================================================================
 
-void LinearBarLAF::drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
-    float sliderPos,
-    float minSliderPos,
-    float maxSliderPos,
-    const juce::Slider::SliderStyle style, juce::Slider& slider)
-{
-    if (slider.isBar())
-    {
-        g.setColour(slider.findColour(juce::Slider::trackColourId));
-        g.fillRect(slider.isHorizontal() ? juce::Rectangle<float>(static_cast<float> (x), (float)y + 0.5f, sliderPos - (float)x, (float)height - 1.0f)
-            : juce::Rectangle<float>((float)x + 0.5f, sliderPos, (float)width - 1.0f, (float)y + ((float)height - sliderPos)));
-
-        drawLinearSliderOutline(g, x, y, width, height, style, slider);
-    }
-}
-
-//==============================================================================
-
 Placeholder::Placeholder()
 {
     juce::Random r;
@@ -452,7 +434,6 @@ void SimpleEQAudioProcessorEditor::paint(juce::Graphics& g)
     analyzer.setVisible(false);
     gridLines.setVisible(false);
 
-
 }
 
 void SimpleEQAudioProcessorEditor::resized()
@@ -464,14 +445,6 @@ void SimpleEQAudioProcessorEditor::resized()
     analyzer.setBounds(bounds.removeFromTop(200));
 
     gridLines.setBounds(analyzer.getBounds());
-
-    /*
-    gridLines.setBounds(gridLines.getBounds()
-        .removeFromBottom(200)
-        .removeFromTop(180)
-        .removeFromLeft(330)
-        .removeFromRight(310));
-    */
 
     lowControl.setBounds(bounds.removeFromLeft(110));
     peakControl.setBounds(bounds.removeFromLeft(110));
@@ -494,39 +467,7 @@ void SimpleEQAudioProcessorEditor::resized()
     outGainLabel.setBounds(gainControl.getBounds().removeFromBottom(30));
 
     titleLabel.setBounds(titleBlock.getBounds().removeFromBottom(45).removeFromLeft(100));
-
-    // for response curve grid
-    /*
-    using namespace juce;
-    background = Image(Image::PixelFormat::RGB, analyzer.getWidth(), analyzer.getHeight(), true);
-
-    Graphics g(background);
-
-    Array<float> freqs
-    {
-        20,30,40,50,100,
-        200,300,400,500,1000,
-        2000,3000,4000,5000,10000,
-        20000
-    };
-
-    g.setColour(Colours::white);
-    for (auto f : freqs)
-    {
-        auto normX = mapFromLog10(f, 20.f, 20000.f);
-        g.drawVerticalLine(analyzer.getWidth() * normX, 0.f, analyzer.getHeight());
-    }
-
-    Array<float> gains
-    {
-        -24,-12,0,12,24
-    };
-    for (auto gDb : gains) {
-        auto y = jmap(gDb, -24.f, 24.f, float(analyzer.getHeight()), 0.f);
-        g.drawHorizontalLine(y, 0, analyzer.getWidth());
-    }
-    */
-
+  
 }
 
 void SimpleEQAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)

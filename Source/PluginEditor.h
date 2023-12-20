@@ -73,13 +73,6 @@ struct SmallDialLAF : juce::LookAndFeel_V4
 
 };
 
-struct LinearBarLAF : juce::LookAndFeel_V4
-{
-    void drawLinearSlider(juce::Graphics&, int x, int y, int width, int height,
-        float sliderPos, float minSliderPos, float maxSliderPos,
-        juce::Slider::SliderStyle, juce::Slider&) override;
-};
-
 //==============================================================================
 
 /**
