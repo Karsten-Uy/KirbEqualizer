@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="yOyPa5" name="SimpleEQ" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="yOyPa5" name="KirbEqualizer" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" cppLanguageStandard="17"
               companyName="Kirbeats">
-  <MAINGROUP id="lDEOTD" name="SimpleEQ">
+  <MAINGROUP id="lDEOTD" name="KirbEqualizer">
     <GROUP id="{9F7A0888-6947-C338-DD80-BD116335AD81}" name="Source">
       <FILE id="zzGZPz" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
