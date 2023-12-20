@@ -2,7 +2,7 @@
 
 Description:
 
-This project aims to create a versatile audio equalizer with highpass, lowpass, and peak filters, allowing users to tailor the audio output according to their preferences. The equalizer includes a user-friendly interface to manipulate filter parameters, such as cutoff frequencies, Q values, and gain, providing fine-grained control over the audio signal.
+This project utilizer the juce framework to create a versatile audio equalizer with highpass, lowpass, and peak filters, allowing users to tailor the audio output according to their preferences. The equalizer includes a user-friendly interface to manipulate filter parameters, such as cutoff frequencies, Q values, and gain, providing fine-grained control over the audio signal.
 
 Features:
 
