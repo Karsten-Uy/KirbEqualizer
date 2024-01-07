@@ -31,7 +31,7 @@ Technical Specifications:
 
 How to Use:
 
-Clone the git repository
+Download the latest release.
 
 Copy the "KirbEqualizer.vst3" to your DAW vst directory
 
