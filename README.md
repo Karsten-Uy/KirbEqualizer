@@ -1,4 +1,4 @@
-# SimpleEQ
+# KirbEqualizer
 
 Description:
 
